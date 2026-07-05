@@ -1,0 +1,1453 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Yellow Lamp – Admin Console</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Inter:wght@300;400;500;600;700&family=Syne:wght@700;800&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    :root {
+      --yellow: #FFD700;
+      --yellow-soft: #FFC200;
+      --yellow-glow: rgba(255, 215, 0, 0.15);
+      --yellow-glow-heavy: rgba(255, 215, 0, 0.35);
+      --black: #000000;
+      --near-black: #080808;
+      --dark: #0d0d0d;
+      --dark-card: rgba(255, 255, 255, 0.03);
+      --border-color: rgba(255, 215, 0, 0.1);
+      --border-color-hover: rgba(255, 215, 0, 0.3);
+      --white: #ffffff;
+      --gray: #888;
+      --light-gray: #aaa;
+      
+      --status-new: #ff4545;
+      --status-contacted: #ffa500;
+      --status-progress: #3b82f6;
+      --status-completed: #10b981;
+    }
+
+    body {
+      background: var(--black);
+      color: var(--white);
+      font-family: 'Inter', sans-serif;
+      overflow-x: hidden;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Background particles */
+    body::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image:
+        radial-gradient(1px 1px at 15% 15%, rgba(255,215,0,0.15) 0%, transparent 100%),
+        radial-gradient(1px 1px at 75% 25%, rgba(255,255,255,0.08) 0%, transparent 100%),
+        radial-gradient(1px 1px at 45% 75%, rgba(255,215,0,0.1) 0%, transparent 100%),
+        radial-gradient(2px 2px at 85% 65%, rgba(255,215,0,0.08) 0%, transparent 100%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* ──────────────────────────
+       AUTH CONTAINER
+     ────────────────────────── */
+    #authContainer {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      z-index: 10;
+    }
+
+    .login-card {
+      background: var(--dark-card);
+      border: 1px solid var(--border-color);
+      backdrop-filter: blur(20px);
+      padding: 50px 40px;
+      border-radius: 24px;
+      width: 100%;
+      max-width: 440px;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.6), 0 0 40px rgba(255, 215, 0, 0.03);
+      position: relative;
+      overflow: hidden;
+      animation: fadeInUp 0.6s ease;
+    }
+    .login-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--yellow), transparent);
+    }
+
+    .login-logo {
+      font-family: 'Playfair Display', serif;
+      font-size: 2.2rem;
+      font-weight: 900;
+      color: var(--yellow);
+      text-align: center;
+      margin-bottom: 8px;
+      text-shadow: 0 0 20px rgba(255,215,0,0.3);
+    }
+    .login-subtitle {
+      text-align: center;
+      color: var(--gray);
+      font-size: 0.85rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin-bottom: 40px;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 24px;
+    }
+    .form-group label {
+      font-size: 0.75rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.6);
+      font-weight: 500;
+    }
+    .form-group input {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 12px;
+      padding: 14px 18px;
+      color: #fff;
+      font-size: 0.95rem;
+      outline: none;
+      transition: all 0.3s;
+    }
+    .form-group input:focus {
+      border-color: var(--yellow);
+      background: rgba(255,215,0,0.02);
+      box-shadow: 0 0 15px rgba(255,215,0,0.1);
+    }
+
+    .login-btn {
+      width: 100%;
+      padding: 16px;
+      background: var(--yellow);
+      color: #000;
+      border: none;
+      border-radius: 12px;
+      font-family: 'Syne', sans-serif;
+      font-size: 0.95rem;
+      font-weight: 800;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: all 0.3s;
+      box-shadow: 0 0 25px rgba(255,215,0,0.2);
+    }
+    .login-btn:hover {
+      background: #fff;
+      box-shadow: 0 0 35px rgba(255,215,0,0.4);
+      transform: translateY(-2px);
+    }
+    .login-btn:active { transform: translateY(0); }
+    
+    .login-hint {
+      text-align: center;
+      font-size: 0.75rem;
+      color: rgba(255,255,255,0.3);
+      margin-top: 24px;
+      line-height: 1.5;
+    }
+
+    .error-msg {
+      color: #ff4545;
+      background: rgba(255,69,69,0.08);
+      border: 1px solid rgba(255,69,69,0.2);
+      padding: 12px;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      margin-bottom: 24px;
+      display: none;
+      text-align: center;
+    }
+
+    /* ──────────────────────────
+       DASHBOARD LAYOUT
+     ────────────────────────── */
+    #dashboardContainer {
+      display: none;
+      flex-direction: column;
+      flex: 1;
+      z-index: 10;
+      animation: fadeIn 0.4s ease;
+    }
+
+    header {
+      border-bottom: 1px solid var(--border-color);
+      background: rgba(0,0,0,0.6);
+      backdrop-filter: blur(15px);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .header-inner {
+      max-width: 1300px;
+      margin: 0 auto;
+      padding: 16px 40px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .logo-block {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .logo-text {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: var(--yellow);
+    }
+    .console-badge {
+      font-size: 0.65rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      background: rgba(255,215,0,0.1);
+      border: 1px solid var(--yellow);
+      color: var(--yellow);
+      padding: 3px 8px;
+      border-radius: 4px;
+      font-weight: bold;
+    }
+    
+    .nav-tabs {
+      display: flex;
+      gap: 8px;
+    }
+    .tab-btn {
+      background: transparent;
+      border: 1px solid transparent;
+      color: var(--gray);
+      padding: 10px 20px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      font-weight: 500;
+      transition: all 0.3s;
+    }
+    .tab-btn:hover {
+      color: #fff;
+    }
+    .tab-btn.active {
+      background: rgba(255,215,0,0.06);
+      border-color: var(--border-color);
+      color: var(--yellow);
+    }
+
+    .logout-btn {
+      background: transparent;
+      border: 1px solid rgba(255,255,255,0.1);
+      color: rgba(255,255,255,0.6);
+      padding: 8px 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.8rem;
+      transition: all 0.3s;
+    }
+    .logout-btn:hover {
+      border-color: rgba(255,69,69,0.4);
+      color: #ff4545;
+      background: rgba(255,69,69,0.05);
+    }
+
+    main {
+      flex: 1;
+      max-width: 1300px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 40px;
+    }
+
+    .tab-content {
+      display: none;
+      animation: fadeIn 0.3s ease;
+    }
+    .tab-content.active {
+      display: block;
+    }
+
+    /* ── STATS GRID ── */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 20px;
+      margin-bottom: 40px;
+    }
+    .stat-card {
+      background: var(--dark-card);
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .stat-title {
+      font-size: 0.72rem;
+      color: var(--gray);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+    }
+    .stat-value {
+      font-family: 'Syne', sans-serif;
+      font-size: 2.2rem;
+      font-weight: 800;
+      color: #fff;
+    }
+    .stat-card.highlight {
+      border-color: rgba(255,215,0,0.25);
+      box-shadow: 0 0 20px rgba(255,215,0,0.02);
+    }
+    .stat-card.highlight .stat-value {
+      color: var(--yellow);
+    }
+
+    /* ── DASHBOARD SECTION SHELL ── */
+    .section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 24px;
+    }
+    .section-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.6rem;
+      font-weight: 700;
+    }
+    .add-btn {
+      background: var(--yellow);
+      color: #000;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 0.85rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.3s;
+      box-shadow: 0 0 15px rgba(255,215,0,0.15);
+    }
+    .add-btn:hover {
+      background: #fff;
+      transform: translateY(-2px);
+      box-shadow: 0 0 25px rgba(255,215,0,0.3);
+    }
+
+    /* ── LEADS TABLE ── */
+    .table-container {
+      background: var(--dark-card);
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      overflow-x: auto;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+    }
+    th, td {
+      padding: 18px 24px;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+      font-size: 0.88rem;
+    }
+    th {
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--gray);
+      background: rgba(255,255,255,0.01);
+      font-weight: 600;
+    }
+    tr:last-child td {
+      border-bottom: none;
+    }
+    tr:hover td {
+      background: rgba(255,255,255,0.01);
+    }
+
+    .client-name { font-weight: 600; color: #fff; }
+    .client-brand { font-size: 0.8rem; color: var(--gray); margin-top: 2px; }
+    .client-contact { color: var(--light-gray); }
+    .client-date { color: var(--gray); font-size: 0.8rem; }
+    
+    .status-badge {
+      display: inline-block;
+      font-size: 0.65rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      padding: 4px 10px;
+      border-radius: 50px;
+      border: 1px solid transparent;
+    }
+    .status-badge.new {
+      background: rgba(255, 69, 69, 0.08);
+      border-color: rgba(255, 69, 69, 0.3);
+      color: var(--status-new);
+    }
+    .status-badge.contacted {
+      background: rgba(255, 165, 0, 0.08);
+      border-color: rgba(255, 165, 0, 0.3);
+      color: var(--status-contacted);
+    }
+    .status-badge.progress {
+      background: rgba(59, 130, 246, 0.08);
+      border-color: rgba(59, 130, 246, 0.3);
+      color: var(--status-progress);
+    }
+    .status-badge.completed {
+      background: rgba(16, 185, 129, 0.08);
+      border-color: rgba(16, 185, 129, 0.3);
+      color: var(--status-completed);
+    }
+
+    .actions-cell {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+    }
+    .action-btn {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.1);
+      color: var(--light-gray);
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 0.72rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .action-btn:hover {
+      background: rgba(255,215,0,0.1);
+      border-color: var(--yellow);
+      color: var(--yellow);
+    }
+    .action-btn.delete-btn:hover {
+      background: rgba(255,69,69,0.1);
+      border-color: #ff4545;
+      color: #ff4545;
+    }
+
+    /* ── PROJECTS LIST ── */
+    .admin-projects-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 20px;
+    }
+    .admin-proj-card {
+      background: var(--dark-card);
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      transition: all 0.3s;
+    }
+    .admin-proj-card:hover {
+      border-color: var(--border-color-hover);
+    }
+    .admin-proj-thumb {
+      height: 150px;
+      background: linear-gradient(135deg, #0d0b00, #111);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .admin-proj-thumb img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .admin-proj-icon {
+      font-size: 2.2rem;
+      opacity: 0.35;
+    }
+    
+    .featured-label {
+      position: absolute;
+      top: 12px; left: 12px;
+      background: var(--yellow);
+      color: #000;
+      font-size: 0.6rem;
+      font-weight: 800;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 4px 8px;
+      border-radius: 4px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+    }
+
+    .admin-proj-body {
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      flex: 1;
+    }
+    .admin-proj-cat {
+      font-size: 0.65rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--yellow);
+      font-weight: 600;
+    }
+    .admin-proj-title {
+      font-size: 1rem;
+      font-weight: 700;
+      color: #fff;
+    }
+    .admin-proj-desc {
+      font-size: 0.8rem;
+      color: var(--gray);
+      line-height: 1.5;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    .admin-proj-tags {
+      font-size: 0.72rem;
+      color: rgba(255,255,255,0.3);
+      margin-top: auto;
+      padding-top: 10px;
+    }
+
+    .admin-proj-foot {
+      padding: 16px 20px;
+      border-top: 1px solid rgba(255,255,255,0.05);
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+    }
+
+    /* ──────────────────────────
+       MODALS & DIALOGS
+     ────────────────────────── */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.8);
+      backdrop-filter: blur(10px);
+      z-index: 1000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      animation: fadeIn 0.3s ease;
+    }
+    .modal-overlay.show {
+      display: flex;
+    }
+    .modal-box {
+      background: #0c0c0c;
+      border: 1px solid var(--border-color);
+      border-radius: 24px;
+      width: 100%;
+      max-width: 550px;
+      box-shadow: 0 25px 60px rgba(0,0,0,0.8);
+      animation: scaleUp 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+      position: relative;
+    }
+    .modal-header {
+      padding: 24px 30px;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .modal-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.3rem;
+      color: #fff;
+    }
+    .close-modal {
+      background: transparent;
+      border: none;
+      color: var(--gray);
+      font-size: 1.4rem;
+      cursor: pointer;
+      transition: color 0.2s;
+    }
+    .close-modal:hover { color: #fff; }
+
+    .modal-body {
+      padding: 30px;
+      max-height: 70vh;
+      overflow-y: auto;
+    }
+    .modal-foot {
+      padding: 20px 30px;
+      border-top: 1px solid rgba(255,255,255,0.05);
+      display: flex;
+      justify-content: flex-end;
+      gap: 12px;
+    }
+
+    /* Modal button styles */
+    .btn-secondary {
+      background: transparent;
+      border: 1px solid rgba(255,255,255,0.1);
+      color: var(--light-gray);
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    .btn-secondary:hover {
+      border-color: rgba(255,255,255,0.3);
+      color: #fff;
+    }
+    .btn-primary {
+      background: var(--yellow);
+      color: #000;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.3s;
+      box-shadow: 0 0 15px rgba(255,215,0,0.15);
+    }
+    .btn-primary:hover {
+      background: #fff;
+      box-shadow: 0 0 25px rgba(255,215,0,0.3);
+    }
+
+    /* Drag-and-drop file upload */
+    .file-dropzone {
+      border: 2px dashed rgba(255,255,255,0.15);
+      border-radius: 12px;
+      padding: 24px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.3s;
+      position: relative;
+    }
+    .file-dropzone:hover {
+      border-color: var(--yellow);
+      background: rgba(255,215,0,0.02);
+    }
+    .file-dropzone input[type="file"] {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      cursor: pointer;
+    }
+    .dropzone-text {
+      color: var(--gray);
+      font-size: 0.8rem;
+    }
+    .dropzone-text strong {
+      color: var(--yellow);
+    }
+    .upload-preview {
+      max-width: 120px;
+      max-height: 120px;
+      border-radius: 8px;
+      margin: 12px auto 0;
+      display: none;
+      object-fit: cover;
+      border: 1px solid rgba(255,215,0,0.2);
+    }
+
+    /* Lead details design */
+    .lead-detail-row {
+      margin-bottom: 18px;
+    }
+    .lead-detail-label {
+      font-size: 0.72rem;
+      color: var(--gray);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 4px;
+    }
+    .lead-detail-val {
+      font-size: 0.95rem;
+      color: #fff;
+      line-height: 1.5;
+    }
+    .lead-detail-msg {
+      background: rgba(255,255,255,0.02);
+      border: 1px solid rgba(255,255,255,0.05);
+      border-radius: 12px;
+      padding: 16px;
+      margin-top: 6px;
+      white-space: pre-wrap;
+    }
+
+    .form-checkbox-row {
+      flex-direction: row;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+      padding: 4px 0;
+    }
+    .form-checkbox-row input {
+      width: 18px; height: 18px;
+      accent-color: var(--yellow);
+    }
+
+    /* ── ANIMATIONS ── */
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    @keyframes scaleUp {
+      from { opacity: 0; transform: scale(0.95); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    /* Loading overlay */
+    #globalLoader {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.85);
+      backdrop-filter: blur(10px);
+      z-index: 9999;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Syne', sans-serif;
+      font-size: 1.2rem;
+      letter-spacing: 0.1em;
+      color: var(--yellow);
+      text-shadow: 0 0 15px rgba(255,215,0,0.6);
+      transition: opacity 0.4s;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- GLOBAL LOADER -->
+  <div id="globalLoader">ILLUMINATING CONSOLE...</div>
+
+  <!-- AUTH / LOGIN SECTION -->
+  <section id="authContainer">
+    <div class="login-card">
+      <div class="login-logo">✦ Yellow Lamp</div>
+      <div class="login-subtitle">Admin Console Login</div>
+      
+      <div class="error-msg" id="loginError">Invalid credentials.</div>
+      
+      <form onsubmit="handleLogin(event)">
+        <div class="form-group">
+          <label for="usernameInput">Username</label>
+          <input type="text" id="usernameInput" placeholder="admin" required autocomplete="username">
+        </div>
+        <div class="form-group">
+          <label for="passwordInput">Password</label>
+          <input type="password" id="passwordInput" placeholder="••••••••••••" required autocomplete="current-password">
+        </div>
+        <button type="submit" class="login-btn" id="loginBtn">Authenticate ✦</button>
+      </form>
+      
+      <div class="login-hint">
+        Default Credentials:<br/>
+        <strong>admin</strong> / <strong>yellowlamp2026</strong>
+      </div>
+    </div>
+  </section>
+
+  <!-- DASHBOARD WORKSPACE -->
+  <div id="dashboardContainer">
+    <header>
+      <div class="header-inner">
+        <div class="logo-block">
+          <span class="logo-text">✦ Yellow Lamp</span>
+          <span class="console-badge">Console</span>
+        </div>
+        
+        <nav class="nav-tabs">
+          <button class="tab-btn active" onclick="switchTab('leads')">Client Leads</button>
+          <button class="tab-btn" onclick="switchTab('projects')">Portfolio Projects</button>
+        </nav>
+        
+        <button class="logout-btn" onclick="handleLogout()">Logout ↗</button>
+      </div>
+    </header>
+
+    <main>
+      
+      <!-- LEADS TAB CONTENT -->
+      <section id="leadsTab" class="tab-content active">
+        <div class="stats-grid">
+          <div class="stat-card highlight">
+            <span class="stat-title">New Inquiries</span>
+            <span class="stat-value" id="statNewLeads">0</span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-title">In Progress</span>
+            <span class="stat-value" id="statPendingLeads">0</span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-title">Total Leads</span>
+            <span class="stat-value" id="statTotalLeads">0</span>
+          </div>
+        </div>
+
+        <div class="section-header">
+          <h2 class="section-title">Client Inquiry Inbox</h2>
+        </div>
+
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>Client Name / Brand</th>
+                <th>Contact Details</th>
+                <th>Date Received</th>
+                <th>Inquiry Status</th>
+                <th style="width: 280px;">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="leadsTableBody">
+              <!-- Loaded dynamically -->
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- PROJECTS TAB CONTENT -->
+      <section id="projectsTab" class="tab-content">
+        <div class="section-header">
+          <h2 class="section-title">Manage Portfolio</h2>
+          <button class="add-btn" onclick="openProjectModal()">
+            <span>Add Project</span>
+            <strong>+</strong>
+          </button>
+        </div>
+
+        <div class="admin-projects-grid" id="adminProjectsList">
+          <!-- Loaded dynamically -->
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- ──────────────────────────
+       MODALS
+     ────────────────────────── -->
+     
+  <!-- LEAD DETAILS MODAL -->
+  <div class="modal-overlay" id="leadModal" onclick="closeOnOverlay(event, 'leadModal')">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3 class="modal-title">Client Inquiry Details</h3>
+        <button class="close-modal" onclick="closeModal('leadModal')">&times;</button>
+      </div>
+      <div class="modal-body" id="leadModalBody">
+        <!-- Loaded dynamically -->
+      </div>
+      <div class="modal-foot">
+        <button class="btn-secondary" onclick="closeModal('leadModal')">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- PROJECT EDIT/ADD MODAL -->
+  <div class="modal-overlay" id="projectModal" onclick="closeOnOverlay(event, 'projectModal')">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3 class="modal-title" id="projectModalTitle">Add Portfolio Project</h3>
+        <button class="close-modal" onclick="closeModal('projectModal')">&times;</button>
+      </div>
+      <form id="projectForm" onsubmit="handleProjectSubmit(event)">
+        <input type="hidden" id="projectIdField">
+        
+        <div class="modal-body">
+          <div class="form-group">
+            <label for="projTitleField">Project Title</label>
+            <input type="text" id="projTitleField" required placeholder="e.g. Lead Pipeline Bot">
+          </div>
+          
+          <div class="form-group">
+            <label for="projCatField">Category</label>
+            <select id="projCatField" style="background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.1); border-radius:12px; padding:14px 18px; color:#fff; font-size:0.95rem; outline:none;" required>
+              <option value="video" style="background:#0c0c0c;">Video Edit</option>
+              <option value="design" style="background:#0c0c0c;">Design</option>
+              <option value="web" style="background:#0c0c0c;">Web Dev</option>
+              <option value="auto" style="background:#0c0c0c;">Automation</option>
+            </select>
+          </div>
+          
+          <div class="form-group">
+            <label for="projDescField">Description / Details</label>
+            <input type="text" id="projDescField" required placeholder="Describe the scope or outcome of the project.">
+          </div>
+          
+          <div class="form-group">
+            <label for="projTagsField">Metadata Tags (Comma-separated)</label>
+            <input type="text" id="projTagsField" placeholder="e.g. Web Dev, E-Commerce, React">
+          </div>
+          
+          <div class="form-group">
+            <label>Project Cover Thumbnail</label>
+            <div class="file-dropzone">
+              <input type="file" id="projFileField" onchange="previewUpload(event)" accept="image/*">
+              <div class="dropzone-text" id="dropzoneText">
+                Drag and drop your thumbnail image, or <strong>browse files</strong>
+              </div>
+              <img id="uploadPreviewImg" class="upload-preview" src="" alt="Preview">
+            </div>
+          </div>
+          
+          <div class="form-group form-checkbox-row">
+            <input type="checkbox" id="projFeaturedField">
+            <label for="projFeaturedField" style="cursor: pointer;">Pin as Featured Hero Project on homepage</label>
+          </div>
+        </div>
+        
+        <div class="modal-foot">
+          <button type="button" class="btn-secondary" onclick="closeModal('projectModal')">Cancel</button>
+          <button type="submit" class="btn-primary" id="projectSaveBtn">Save Project ✦</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- JAVASCRIPT APP LOGIC -->
+  <script>
+    let currentTab = 'leads';
+    let allLeads = [];
+    let allProjects = [];
+
+    // Verify Session on page load
+    window.addEventListener('DOMContentLoaded', async () => {
+      try {
+        const response = await fetch('/api/admin/verify');
+        const session = await response.json();
+        
+        const loader = document.getElementById('globalLoader');
+        
+        if (session.authenticated) {
+          showDashboard();
+        } else {
+          showLogin();
+        }
+        
+        loader.style.opacity = '0';
+        setTimeout(() => loader.style.display = 'none', 400);
+      } catch (err) {
+        console.error('Session check failed:', err);
+        showLogin();
+        document.getElementById('globalLoader').style.display = 'none';
+      }
+    });
+
+    function showLogin() {
+      document.getElementById('authContainer').style.display = 'flex';
+      document.getElementById('dashboardContainer').style.display = 'none';
+    }
+
+    function showDashboard() {
+      document.getElementById('authContainer').style.display = 'none';
+      document.getElementById('dashboardContainer').style.display = 'flex';
+      loadData();
+    }
+
+    // Login action
+    async function handleLogin(e) {
+      e.preventDefault();
+      const user = document.getElementById('usernameInput').value.trim();
+      const pass = document.getElementById('passwordInput').value.trim();
+      const errorMsg = document.getElementById('loginError');
+      const submitBtn = document.getElementById('loginBtn');
+
+      errorMsg.style.display = 'none';
+
+      try {
+        submitBtn.disabled = true;
+        submitBtn.innerText = 'Authenticating...';
+
+        const response = await fetch('/api/admin/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username: user, password: pass })
+        });
+
+        const result = await response.json();
+
+        if (response.ok && result.success) {
+          showDashboard();
+        } else {
+          errorMsg.innerText = result.error || 'Failed to authenticate.';
+          errorMsg.style.display = 'block';
+        }
+      } catch (err) {
+        console.error(err);
+        errorMsg.innerText = 'Network error. Please try again.';
+        errorMsg.style.display = 'block';
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.innerText = 'Authenticate ✦';
+      }
+    }
+
+    // Logout action
+    async function handleLogout() {
+      if (!confirm('Are you sure you want to exit the admin console?')) return;
+      try {
+        await fetch('/api/admin/logout', { method: 'POST' });
+        showLogin();
+      } catch (err) {
+        console.error('Logout error:', err);
+      }
+    }
+
+    // Switch Tabs
+    function switchTab(tabId) {
+      currentTab = tabId;
+      document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+      
+      const activeBtn = Array.from(document.querySelectorAll('.tab-btn')).find(btn => btn.innerText.toLowerCase().includes(tabId === 'leads' ? 'leads' : 'projects'));
+      if (activeBtn) activeBtn.classList.add('active');
+      
+      document.getElementById(`${tabId}Tab`).classList.add('active');
+      loadData();
+    }
+
+    // Refresh Dashboard Data
+    async function loadData() {
+      if (currentTab === 'leads') {
+        await fetchLeads();
+      } else {
+        await fetchProjects();
+      }
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // CLIENT LEADS MANAGEMENT
+    // ─────────────────────────────────────────────────────────────────────────
+    async function fetchLeads() {
+      try {
+        const response = await fetch('/api/admin/leads');
+        if (!response.ok) throw new Error('Unauthorised or database error');
+        allLeads = await response.json();
+        
+        renderLeadsStats();
+        renderLeadsTable();
+      } catch (err) {
+        console.error('Error fetching leads:', err);
+      }
+    }
+
+    function renderLeadsStats() {
+      const total = allLeads.length;
+      const newLeads = allLeads.filter(l => l.status === 'New').length;
+      const progressLeads = allLeads.filter(l => l.status === 'In Progress').length;
+      
+      document.getElementById('statTotalLeads').innerText = total;
+      document.getElementById('statNewLeads').innerText = newLeads;
+      document.getElementById('statPendingLeads').innerText = progressLeads;
+    }
+
+    function renderLeadsTable() {
+      const tbody = document.getElementById('leadsTableBody');
+      tbody.innerHTML = '';
+
+      if (allLeads.length === 0) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="5" style="text-align: center; padding: 40px; color: var(--gray);">
+              No client leads received yet. Build something amazing and start marketing!
+            </td>
+          </tr>
+        `;
+        return;
+      }
+
+      allLeads.forEach(lead => {
+        const tr = document.createElement('tr');
+        const formattedDate = new Date(lead.date).toLocaleDateString('en-US', {
+          month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit'
+        });
+
+        tr.innerHTML = `
+          <td>
+            <div class="client-name">${escapeHTML(lead.fullName)}</div>
+            <div class="client-brand">${escapeHTML(lead.brandName)}</div>
+          </td>
+          <td>
+            <div class="client-contact">${escapeHTML(lead.emailId)}</div>
+            <div class="client-contact" style="font-size:0.8rem; color:var(--gray); margin-top:2px;">${escapeHTML(lead.contactNum)}</div>
+          </td>
+          <td class="client-date">${formattedDate}</td>
+          <td>
+            <span class="status-badge ${lead.status.toLowerCase().replace(' ', '')}">${lead.status}</span>
+          </td>
+          <td>
+            <div class="actions-cell">
+              <button class="action-btn" onclick="viewLeadDetails('${lead.id}')">View</button>
+              
+              <select style="background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.1); border-radius:6px; color:#fff; font-size:0.75rem; padding:4px 6px; outline:none; cursor:pointer;" 
+                      onchange="updateLeadStatus('${lead.id}', this.value)">
+                <option value="New" ${lead.status === 'New' ? 'selected' : ''}>New</option>
+                <option value="Contacted" ${lead.status === 'Contacted' ? 'selected' : ''}>Contacted</option>
+                <option value="In Progress" ${lead.status === 'In Progress' ? 'selected' : ''}>In Progress</option>
+                <option value="Completed" ${lead.status === 'Completed' ? 'selected' : ''}>Completed</option>
+              </select>
+
+              <button class="action-btn delete-btn" onclick="deleteLead('${lead.id}')">✕</button>
+            </div>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    async function viewLeadDetails(id) {
+      const lead = allLeads.find(l => l.id === id);
+      if (!lead) return;
+
+      const body = document.getElementById('leadModalBody');
+      const formattedDate = new Date(lead.date).toLocaleString('en-US', {
+        weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit'
+      });
+
+      body.innerHTML = `
+        <div class="lead-detail-row">
+          <div class="lead-detail-label">Client Full Name</div>
+          <div class="lead-detail-val" style="font-weight: 600;">${escapeHTML(lead.fullName)}</div>
+        </div>
+        <div class="lead-detail-row">
+          <div class="lead-detail-label">Brand Name</div>
+          <div class="lead-detail-val" style="color:var(--yellow); font-weight:700;">${escapeHTML(lead.brandName)}</div>
+        </div>
+        <div class="lead-detail-row">
+          <div class="lead-detail-label">Contact Details</div>
+          <div class="lead-detail-val">
+            Email: <a href="mailto:${lead.emailId}" style="color:var(--yellow); text-decoration:none;">${escapeHTML(lead.emailId)}</a><br/>
+            Phone: ${escapeHTML(lead.contactNum)}
+          </div>
+        </div>
+        <div class="lead-detail-row">
+          <div class="lead-detail-label">Submission Date</div>
+          <div class="lead-detail-val">${formattedDate}</div>
+        </div>
+        <div class="lead-detail-row">
+          <div class="lead-detail-label">Inquiry Pitch</div>
+          <div class="lead-detail-val lead-detail-msg">${escapeHTML(lead.message || 'No brand pitch message left.')}</div>
+        </div>
+      `;
+
+      // Automatically mark as "Contacted" if it was "New" when viewed
+      if (lead.status === 'New') {
+        await updateLeadStatusSilently(lead.id, 'Contacted');
+      }
+
+      openModal('leadModal');
+    }
+
+    async function updateLeadStatus(id, newStatus) {
+      try {
+        const response = await fetch(`/api/admin/leads/${id}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ status: newStatus })
+        });
+        
+        if (response.ok) {
+          fetchLeads();
+        } else {
+          alert('Failed to update lead status');
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    // Updates lead status silently behind the scenes without interrupting the user's view modal
+    async function updateLeadStatusSilently(id, newStatus) {
+      try {
+        await fetch(`/api/admin/leads/${id}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ status: newStatus })
+        });
+        // Reload leads list in background
+        const response = await fetch('/api/admin/leads');
+        allLeads = await response.json();
+        renderLeadsStats();
+        renderLeadsTable();
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    async function deleteLead(id) {
+      if (!confirm('Are you sure you want to delete this lead? This action is permanent.')) return;
+      try {
+        const response = await fetch(`/api/admin/leads/${id}`, { method: 'DELETE' });
+        if (response.ok) {
+          fetchLeads();
+        } else {
+          alert('Failed to delete lead');
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // PORTFOLIO PROJECTS CRUD
+    // ─────────────────────────────────────────────────────────────────────────
+    async function fetchProjects() {
+      try {
+        const response = await fetch('/api/projects');
+        allProjects = await response.json();
+        renderProjects();
+      } catch (err) {
+        console.error('Error fetching projects:', err);
+      }
+    }
+
+    function renderProjects() {
+      const grid = document.getElementById('adminProjectsList');
+      grid.innerHTML = '';
+
+      if (allProjects.length === 0) {
+        grid.innerHTML = `
+          <div style="grid-column: 1 / -1; text-align: center; padding: 60px 0; color: var(--gray);">
+            No projects in the portfolio database. Click "+ Add Project" to insert one!
+          </div>
+        `;
+        return;
+      }
+
+      allProjects.forEach(proj => {
+        const card = document.createElement('div');
+        card.className = 'admin-proj-card';
+
+        card.innerHTML = `
+          <div class="admin-proj-thumb">
+            ${proj.isFeatured ? `<span class="featured-label">Featured</span>` : ''}
+            ${proj.thumbnail ? 
+              `<img src="${proj.thumbnail}" alt="${proj.title}">` : 
+              `<span class="admin-proj-icon">${getCategoryIcon(proj.category)}</span>`
+            }
+          </div>
+          <div class="admin-proj-body">
+            <span class="admin-proj-cat">${getCategoryName(proj.category)}</span>
+            <div class="admin-proj-title">${escapeHTML(proj.title)}</div>
+            <div class="admin-proj-desc">${escapeHTML(proj.description || '')}</div>
+            <div class="admin-proj-tags">${proj.tags.join(' • ')}</div>
+          </div>
+          <div class="admin-proj-foot">
+            <button class="action-btn" onclick="openProjectModal('${proj.id}')">Edit</button>
+            <button class="action-btn delete-btn" onclick="deleteProject('${proj.id}')">Delete</button>
+          </div>
+        `;
+        grid.appendChild(card);
+      });
+    }
+
+    // Open Add / Edit Project modal
+    function openProjectModal(id = null) {
+      const form = document.getElementById('projectForm');
+      form.reset();
+      
+      // Reset dropzone preview
+      document.getElementById('uploadPreviewImg').style.display = 'none';
+      document.getElementById('uploadPreviewImg').src = '';
+      document.getElementById('dropzoneText').style.display = 'block';
+
+      if (id) {
+        // Edit Mode
+        const proj = allProjects.find(p => p.id === id);
+        if (!proj) return;
+
+        document.getElementById('projectModalTitle').innerText = 'Edit Portfolio Project';
+        document.getElementById('projectIdField').value = proj.id;
+        document.getElementById('projTitleField').value = proj.title;
+        document.getElementById('projCatField').value = proj.category;
+        document.getElementById('projDescField').value = proj.description;
+        document.getElementById('projTagsField').value = proj.tags.join(', ');
+        document.getElementById('projFeaturedField').checked = proj.isFeatured;
+
+        if (proj.thumbnail) {
+          const previewImg = document.getElementById('uploadPreviewImg');
+          previewImg.src = proj.thumbnail;
+          previewImg.style.display = 'block';
+          document.getElementById('dropzoneText').style.display = 'none';
+        }
+      } else {
+        // Add Mode
+        document.getElementById('projectModalTitle').innerText = 'Add Portfolio Project';
+        document.getElementById('projectIdField').value = '';
+        document.getElementById('projFeaturedField').checked = false;
+      }
+
+      openModal('projectModal');
+    }
+
+    // Preview uploaded file
+    function previewUpload(e) {
+      const file = e.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function(evt) {
+          const previewImg = document.getElementById('uploadPreviewImg');
+          previewImg.src = evt.target.result;
+          previewImg.style.display = 'block';
+          document.getElementById('dropzoneText').style.display = 'none';
+        };
+        reader.readAsDataURL(file);
+      }
+    }
+
+    // Submit Project Add / Edit
+    async function handleProjectSubmit(e) {
+      e.preventDefault();
+      
+      const id = document.getElementById('projectIdField').value;
+      const title = document.getElementById('projTitleField').value.trim();
+      const category = document.getElementById('projCatField').value;
+      const description = document.getElementById('projDescField').value.trim();
+      const tags = document.getElementById('projTagsField').value.trim();
+      const isFeatured = document.getElementById('projFeaturedField').checked;
+      const fileInput = document.getElementById('projFileField');
+      
+      const saveBtn = document.getElementById('projectSaveBtn');
+      const originalText = saveBtn.innerHTML;
+
+      // Use FormData to support multipart file uploading
+      const formData = new FormData();
+      formData.append('title', title);
+      formData.append('category', category);
+      formData.append('description', description);
+      formData.append('tags', tags);
+      formData.append('isFeatured', isFeatured);
+
+      if (fileInput.files.length > 0) {
+        formData.append('thumbnailFile', fileInput.files[0]);
+      }
+
+      try {
+        saveBtn.disabled = true;
+        saveBtn.innerText = 'Saving Project...';
+
+        let url = '/api/admin/projects';
+        let method = 'POST';
+
+        if (id) {
+          url = `/api/admin/projects/${id}`;
+          method = 'PUT';
+        }
+
+        const response = await fetch(url, {
+          method: method,
+          body: formData // Note: no headers content-type, browser sets it automatically with boundary string
+        });
+
+        if (response.ok) {
+          closeModal('projectModal');
+          fetchProjects();
+        } else {
+          const errData = await response.json();
+          alert(errData.error || 'Failed to save project. Make sure file size is under 10MB.');
+        }
+      } catch (err) {
+        console.error(err);
+        alert('An error occurred during submission.');
+      } finally {
+        saveBtn.disabled = false;
+        saveBtn.innerHTML = originalText;
+      }
+    }
+
+    async function deleteProject(id) {
+      if (!confirm('Are you sure you want to delete this project? This will remove its details and delete any uploaded image file.')) return;
+      try {
+        const response = await fetch(`/api/admin/projects/${id}`, { method: 'DELETE' });
+        if (response.ok) {
+          fetchProjects();
+        } else {
+          alert('Failed to delete project.');
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // HELPER & WINDOW WINDOW CONTROL UTILS
+    // ─────────────────────────────────────────────────────────────────────────
+    function openModal(modalId) {
+      document.getElementById(modalId).classList.add('show');
+    }
+    
+    function closeModal(modalId) {
+      document.getElementById(modalId).classList.remove('show');
+    }
+
+    function closeOnOverlay(e, modalId) {
+      if (e.target.id === modalId) {
+        closeModal(modalId);
+      }
+    }
+
+    function escapeHTML(str) {
+      if (!str) return '';
+      return str
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
+    function getCategoryIcon(cat) {
+      switch (cat) {
+        case 'video': return '🎬';
+        case 'design': return '🎨';
+        case 'web': return '🌐';
+        case 'auto': return '⚡';
+        default: return '✦';
+      }
+    }
+
+    function getCategoryName(cat) {
+      switch (cat) {
+        case 'video': return 'Video Edit';
+        case 'design': return 'Design';
+        case 'web': return 'Web Dev';
+        case 'auto': return 'Automation';
+        default: return 'Creative';
+      }
+    }
+  </script>
+</body>
+</html>

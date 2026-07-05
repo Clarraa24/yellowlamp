@@ -1,0 +1,108 @@
+[
+  {
+    "id": "seed-featured",
+    "title": "Brand Campaign Reel 2025",
+    "category": "video",
+    "description": "A cinematic brand film that captured the essence of our client's vision — shot, edited, and delivered in 4K.",
+    "tags": [
+      "Video Edit",
+      "Motion"
+    ],
+    "isFeatured": true,
+    "thumbnail": "",
+    "date": "2025-02-15T10:00:00.000Z"
+  },
+  {
+    "id": "seed-1",
+    "title": "Brand Identity System",
+    "category": "design",
+    "description": "Logo, typography & full visual language for a D2C startup.",
+    "tags": [
+      "Design",
+      "Branding"
+    ],
+    "isFeatured": false,
+    "thumbnail": "",
+    "date": "2025-02-10T14:30:00.000Z"
+  },
+  {
+    "id": "seed-2",
+    "title": "E-Commerce Platform",
+    "category": "web",
+    "description": "Full-stack storefront with seamless checkout & CMS.",
+    "tags": [
+      "Web Dev",
+      "E-Commerce"
+    ],
+    "isFeatured": false,
+    "thumbnail": "",
+    "date": "2025-02-08T09:15:00.000Z"
+  },
+  {
+    "id": "seed-3",
+    "title": "Lead Pipeline Bot",
+    "category": "auto",
+    "description": "Automated CRM workflows saving 40+ hours/month.",
+    "tags": [
+      "Automation",
+      "CRM"
+    ],
+    "isFeatured": false,
+    "thumbnail": "",
+    "date": "2025-02-05T16:45:00.000Z"
+  },
+  {
+    "id": "seed-4",
+    "title": "Product Launch Reel",
+    "category": "video",
+    "description": "30-second punchy product video for Instagram & Reels.",
+    "tags": [
+      "Video Edit",
+      "Social"
+    ],
+    "isFeatured": false,
+    "thumbnail": "",
+    "date": "2025-02-02T11:00:00.000Z"
+  },
+  {
+    "id": "seed-5",
+    "title": "Social Media Kit",
+    "category": "design",
+    "description": "60+ templates across Instagram, LinkedIn & X.",
+    "tags": [
+      "Design",
+      "Templates"
+    ],
+    "isFeatured": false,
+    "thumbnail": "",
+    "date": "2025-01-28T15:20:00.000Z"
+  },
+  {
+    "id": "seed-6",
+    "title": "Portfolio Website",
+    "category": "web",
+    "description": "Animated personal portfolio with Three.js hero scene.",
+    "tags": [
+      "Web Dev",
+      "Animation"
+    ],
+    "isFeatured": false,
+    "thumbnail": "",
+    "date": "2025-01-20T10:30:00.000Z"
+  },
+  {
+    "id": "proj_mr7sccnehe9dy",
+    "title": "AI Automation Agent",
+    "category": "auto",
+    "description": "AI-powered workflow that scans and responds to website requests automatically.",
+    "tags": [
+      "AI",
+      "Automation",
+      "Node",
+      "ChatGPT"
+    ],
+    "isFeatured": false,
+    "thumbnail": "",
+    "date": "2026-07-05T12:46:41.930Z"
+  }
+]
