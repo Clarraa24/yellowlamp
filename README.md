@@ -41,7 +41,7 @@ The backend is built with **Node.js** and **Express**, featuring a lightweight J
 ## Admin Credentials
 
 - **Username**: `admin`
-- **Default Password**: `yellowlamp2026`
+- **Default Password**: `hochifyai2026`
 
 *You can customize the password by setting the `ADMIN_PASSWORD` variable in the `.env` file before starting the server for the first time.*
 
@@ -62,7 +62,7 @@ By default, the server runs in **development fallback mode** where new lead deta
    ```env
    PORT=3000
    JWT_SECRET=yellow-lamp-secret-key-2026
-   ADMIN_PASSWORD=yellowlamp2026
+   ADMIN_PASSWORD=hochifyai2026
 
    SMTP_HOST=smtp.gmail.com
    SMTP_PORT=587

@@ -100,7 +100,7 @@ function initDB() {
 
   // Config file (Admin password setup)
   if (!fs.existsSync(CONFIG_FILE)) {
-    const defaultPassword = process.env.ADMIN_PASSWORD || 'yellowlamp2026';
+    const defaultPassword = process.env.ADMIN_PASSWORD || 'hochifyai2026';
     const salt = bcrypt.genSaltSync(10);
     const hashedPassword = bcrypt.hashSync(defaultPassword, salt);
     const config = {
@@ -108,7 +108,7 @@ function initDB() {
       adminPasswordHash: hashedPassword
     };
     fs.writeFileSync(CONFIG_FILE, JSON.stringify(config, null, 2), 'utf8');
-    console.log('[DB] Config database initialized with default credentials (admin / yellowlamp2026)');
+    console.log('[DB] Config database initialized with default credentials (admin / hochifyai2026)');
   }
 }
 

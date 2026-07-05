@@ -402,6 +402,6 @@ app.listen(PORT, () => {
   console.log(`✦ Yellow Lamp Server is illuminated at http://localhost:${PORT}`);
   console.log(`✦ Database successfully connected.`);
   console.log(`✦ Serving frontend from public/`);
-  console.log(`✦ Admin credentials: username="admin", password="yellowlamp2026"`);
+  console.log(`✦ Admin credentials: username="admin", password="hochifyai2026"`);
   console.log(`================================================================\n`);
 });
